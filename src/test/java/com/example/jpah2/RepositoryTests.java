@@ -21,6 +21,8 @@ class RepositoryTests {
 
 	@Test
 	void testDepartmentReads() {
+		departmentRepository.deleteAll();
+
 		Department department = new Department();
 		department.setName("IT");
 		Department save = departmentRepository.save(department);
