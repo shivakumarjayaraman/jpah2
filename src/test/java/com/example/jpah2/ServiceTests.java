@@ -1,0 +1,48 @@
+package com.example.jpah2;
+
+import com.example.jpah2.model.Department;
+import com.example.jpah2.model.Employee;
+import com.example.jpah2.service.EmployeeService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest
+public class ServiceTests {
+    @Autowired
+    EmployeeService service;
+
+    @Test
+    public void testEmployeeService() {
+        service.createDepartment("IT");
+        service.createDepartment("HR");
+
+        assertEquals(2, service.getAllDepartments().size());
+
+
+        service.createEmployee("Alice", 50000, "IT");
+        service.createEmployee("Bob", 60000, "IT");
+        List<Employee> allEmployees = service.getAllEmployees();
+        assertEquals(2, allEmployees.size());
+
+        service.increaseEmployeeSalary("Alice", 10);
+        List<Employee> aliceEmployees = service.getEmployeeByName("Alice");
+        assertEquals(1, aliceEmployees.size());
+        Employee alice = aliceEmployees.get(0);
+        assertEquals(55000, alice.getSalary(), 0.01);
+        assertEquals("IT", alice.getDepartment().getName());
+
+        Department it = service.getAllDepartments().stream().filter(d -> d.getName().equals("IT")).toList().get(0);
+
+        // you dont want to load all employees when you load a department, so the employees collection is not loaded until you access it.
+        // This is called lazy loading.
+        // If you want to load the employees when you load the department, you can use eager loading by annotating the employees collection with @OneToMany(fetch = FetchType.EAGER).
+        // However, this can lead to performance issues if you have a large number of employees.
+        // but if you want to see that in action, uncomment the code below (and change the fetch type in the Department entity to EAGER)
+        //assertEquals(2, it.getEmployees().size());
+    }
+}

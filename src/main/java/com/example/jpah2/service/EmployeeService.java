@@ -1,0 +1,66 @@
+package com.example.jpah2.service;
+
+import com.example.jpah2.model.Department;
+import com.example.jpah2.model.Employee;
+import com.example.jpah2.repository.DepartmentRepository;
+import com.example.jpah2.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class EmployeeService {
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Transactional
+    public void createDepartment(String name) {
+        var department = new Department();
+        department.setName(name);
+        departmentRepository.save(department);
+    }
+
+
+    @Transactional
+    public void createEmployee(String name, double salary, String departmentName) {
+        var department = departmentRepository.findByName(departmentName);
+        if (department == null) {
+            throw new RuntimeException("Department not found: " + departmentName);
+        }
+        var employee = new Employee();
+        employee.setName(name);
+        employee.setDepartment(department);
+        employee.setSalary(salary);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional
+    public List<Employee> getEmployeeByName(String name) {
+        return employeeRepository.findByName(name);
+    }
+
+    @Transactional
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    @Transactional
+    public void increaseEmployeeSalary(String name, double percentage) {
+        List<Employee> employees = employeeRepository.findByName(name);
+        for (Employee employee : employees) {
+            double newSalary = employee.getSalary() * (1 + percentage / 100);
+            employee.setSalary(newSalary);
+            employeeRepository.save(employee);
+        }
+    }
+
+    @Transactional
+    public List<Department> getAllDepartments() {
+        return departmentRepository.findAll();
+    }
+}
