@@ -1,5 +1,6 @@
 package com.example.jpah2.service;
 
+import com.example.jpah2.model.Address;
 import com.example.jpah2.model.Department;
 import com.example.jpah2.model.Employee;
 import com.example.jpah2.repository.DepartmentRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeService {
@@ -27,7 +29,7 @@ public class EmployeeService {
 
 
     @Transactional
-    public void createEmployee(String name, double salary, String departmentName) {
+    public void createEmployee(String name, double salary, String departmentName, Address address) {
         var department = departmentRepository.findByName(departmentName);
         if (department == null) {
             throw new RuntimeException("Department not found: " + departmentName);
@@ -36,6 +38,7 @@ public class EmployeeService {
         employee.setName(name);
         employee.setDepartment(department);
         employee.setSalary(salary);
+        employee.setAddress(address);
         employeeRepository.save(employee);
     }
 
@@ -55,8 +58,20 @@ public class EmployeeService {
         for (Employee employee : employees) {
             double newSalary = employee.getSalary() * (1 + percentage / 100);
             employee.setSalary(newSalary);
-            employeeRepository.save(employee);
+
+            // you dont need to save since the employee is managed by the persistence context,
+            // it will be automatically saved when the transaction commits.
+            //employeeRepository.save(employee);
         }
+    }
+
+    @Transactional
+    public void addPhoneNumberToEmployee(Long id, String type, String number) {
+        Optional<Employee> byId = employeeRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw new RuntimeException("Employee not found: " + id);
+        }
+        byId.get().addPhoneNumber(type, number);
     }
 
     @Transactional
