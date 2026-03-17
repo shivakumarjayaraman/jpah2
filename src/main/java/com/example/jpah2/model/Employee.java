@@ -1,5 +1,6 @@
 package com.example.jpah2.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Collections;
@@ -39,6 +40,7 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
+    @JsonIgnore // to avoid infinite recursion when serializing to JSON
     private Department department;
 
     public Long getId() {
