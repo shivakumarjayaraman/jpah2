@@ -29,6 +29,11 @@ public class MyController {
         return ResponseEntity.ok().body(allEmployees);
     }
 
+    @GetMapping("/makeerror")
+    public String throwSomeError(){
+        throw new RuntimeException("This is to demo error handling");
+    }
+
     @PostMapping("/depts/{name}")
     public ResponseEntity<Department> createDepartment(@PathVariable String name) {
         Department department = employeeService.createDepartment(name);
